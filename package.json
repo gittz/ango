@@ -3,21 +3,21 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RubyLouvre/avalon.git"
+    "url": "https://github.com/gittz/ango.git"
   },
-  "version": "2.2.9",
+  "version": "1.0.0",
   "description": "an elegant efficient express mvvm framework",
-  "main": "dist/avalon.js",
+  "main": "dist/ango.js",
   "keywords": [
     "javascript",
     "mvvm",
+    "preact",
+    "vue",
     "virtual dom"
   ],
   "scripts": {
     "start": "node server.js",
     "build": "node build"
-  },
-  "dependencies": {
   },
   "devDependencies": {
     "babel-core": "^6.17.0",
