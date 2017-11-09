@@ -1,3 +1,6 @@
+class B {
+}
+
 class A {
     constructor() {
         this.a = 1;
@@ -8,6 +11,6 @@ class A {
     }
 
     render() {
-        return <span>123</span>
+        return <B>123</B>
     }
 }
