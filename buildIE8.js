@@ -16,7 +16,7 @@ module.exports = rollup.rollup({
     // included, along with the minimum necessary code
     // from its dependencies
 
-    entry: 'entry.js',
+    entry: 'demo/index.js',
     // If you have a bundle you want to re-use (e.g., when using a watcher to rebuild as files change),
     // you can tell rollup use a previous bundle as its starting point.
     // This is entirely optional!
@@ -24,7 +24,6 @@ module.exports = rollup.rollup({
 
     plugins: [
         buble({
-            jsx: 'h',
             transforms: {
                 modules: false
             }
@@ -54,7 +53,7 @@ module.exports = rollup.rollup({
 
     var code = transform(result.code).
     replace(/\}\)\(undefined,/, '})(this,').
-    replace(/ango\$\d/g, 'ango')
+    replace(/React\$\d/g, 'React')
 
     //这个不需要了
     //  replace(/'use strict';?/g, '')
