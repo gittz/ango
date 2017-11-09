@@ -59,6 +59,17 @@ module.exports = rollup.rollup({
     //  replace(/'use strict';?/g, '')
     fs.writeFileSync('./dist/ango.umd.js', less(code));
 
+    //cjs
+    result = bundle.generate({
+        sourceMap: true,
+        format: 'umd',
+        moduleName: 'Ango'
+    });
+    result = babel.transform(result.code, {
+        presets: ['avalon'],
+        compact: false
+    })
+    fs.writeFileSync('./dist/ango.cjs.js', less(result.code));
 
 }).catch(function(e) {
     console.log('error', e)

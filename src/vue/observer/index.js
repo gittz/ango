@@ -1,4 +1,9 @@
-
+/**
+ * By default, when a reactive property is set, the new value is
+ * also converted to become reactive. However when passing down props,
+ * we don't want to force conversion because the value may be a nested value
+ * under a frozen data structure. Converting it would defeat the optimization.
+ */
 import Dep from './dep'
 import { arrayMethods } from './array'
 import {
@@ -10,15 +15,10 @@ import {
   isValidArrayIndex,
   isServerRendering
 } from '../util/index'
+import {VNode} from "../../preact/vnode";
 
 const arrayKeys = Object.getOwnPropertyNames(arrayMethods)
 
-/**
- * By default, when a reactive property is set, the new value is
- * also converted to become reactive. However when passing down props,
- * we don't want to force conversion because the value may be a nested value
- * under a frozen data structure. Converting it would defeat the optimization.
- */
 export const observerState = {
   shouldConvert: true
 }
@@ -98,7 +98,7 @@ function copyAugment (target, src, keys) {
  * or the existing observer if the value already has one.
  */
 export function observe (value, asRootData) {
-  if (!isObject(value)) {
+  if (!isObject(value) || value instanceof VNode) {
     return
   }
   let ob

@@ -130,12 +130,20 @@ function proxy(target, sourceKey, key) {
     Object.defineProperty(target, key, sharedPropertyDefinition)
 }
 
+const skip = {
+    children: true
+}
+
 export class Component extends C {
     constructor(props, context) {
         super(props, context)
         this._watchers = []
         props = extend({}, this.props)
         for (const key in this.props) {
+            if (skip[key]) {
+                this[key] = this.props[key]
+                continue
+            }
             defineReactive(this.props, key, props[key])
             proxy(this, 'props', key)
         }
