@@ -14,9 +14,12 @@ import {noop} from "./vue/shared/util";
 
 //配置
 options.beforeUnmount = function (component) {
-    const watchers = component._watchers.concat([component._watcher])
-    for (let i = 0, len = watchers; i < len; i++) {
-        watchers[i]()
+    if (component._watcher) {
+        component._watcher.teardown()
+    }
+    let i = component._watchers.length
+    while (i--) {
+        component._watchers[i].teardown()
     }
 }
 

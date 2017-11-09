@@ -1959,9 +1959,12 @@
 
   //配置
   options.beforeUnmount = function (component) {
-    var watchers = component._watchers.concat([component._watcher]);
-    for (var i = 0, len = watchers; i < len; i++) {
-      watchers[i]();
+    if (component._watcher) {
+      component._watcher.teardown();
+    }
+    var i = component._watchers.length;
+    while (i--) {
+      component._watchers[i].teardown();
     }
   };
 
