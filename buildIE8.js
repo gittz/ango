@@ -16,7 +16,7 @@ module.exports = rollup.rollup({
     // included, along with the minimum necessary code
     // from its dependencies
 
-    entry: 'demo/index.js',
+    entry: 'src/index.js',
     // If you have a bundle you want to re-use (e.g., when using a watcher to rebuild as files change),
     // you can tell rollup use a previous bundle as its starting point.
     // This is entirely optional!
@@ -35,7 +35,7 @@ module.exports = rollup.rollup({
     var result = bundle.generate({
         sourceMap: true,
         format: 'umd',
-        moduleName: 'ango'
+        moduleName: 'Ango'
     });
     // Cache our bundle for later use (optional)
     cache = bundle;
@@ -57,7 +57,7 @@ module.exports = rollup.rollup({
 
     //这个不需要了
     //  replace(/'use strict';?/g, '')
-    fs.writeFileSync('./dist/ango.js', less(code));
+    fs.writeFileSync('./dist/ango.umd.js', less(code));
 
 
 }).catch(function(e) {
