@@ -147,8 +147,15 @@ export class Component extends C {
         if (this.watch && this.watch !== nativeWatch) {
             initWatch(this, this.watch)
         }
+        let init = false
         this._watcher = new Watcher(this, () => {
-            this.forceUpdate()
+            //第一次只执行一次render进行依赖搜集
+            if (!init) {
+                this.render()
+                init = true
+            } else {
+                this.forceUpdate()
+            }
         })
     }
 

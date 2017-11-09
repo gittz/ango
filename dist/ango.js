@@ -1256,7 +1256,7 @@
   var isChrome = UA && /chrome\/\d+/.test(UA) && !isEdge;
 
   // Firefox has a "watch" function on Object.prototype...
-
+  var nativeWatch = {}.watch;
 
   var supportsPassive = false;
   if (inBrowser) {
@@ -1968,6 +1968,78 @@
     }
   };
 
+  var computedWatcherOptions = { lazy: true };
+
+  function initComputed(vm, computed) {
+    var watchers = vm._computedWatchers = Object.create(null);
+    // computed properties are just getters during SSR
+
+    for (var key in computed) {
+      var userDef = computed[key];
+      var getter = typeof userDef === 'function' ? userDef : userDef.get;
+      // create internal watcher for the computed property.
+      watchers[key] = new Watcher(vm, getter || noop, noop, computedWatcherOptions);
+
+      // component-defined computed properties are already defined on the
+      // component prototype. We only need to define computed properties defined
+      // at instantiation here.
+      if (!(key in vm)) {
+        defineComputed(vm, key, userDef);
+      }
+    }
+  }
+
+  function defineComputed(target, key, userDef) {
+    var shouldCache = true;
+    if (typeof userDef === 'function') {
+      sharedPropertyDefinition.get = shouldCache ? createComputedGetter(key) : userDef;
+      sharedPropertyDefinition.set = noop;
+    } else {
+      sharedPropertyDefinition.get = userDef.get ? shouldCache && userDef.cache !== false ? createComputedGetter(key) : userDef.get : noop;
+      sharedPropertyDefinition.set = userDef.set ? userDef.set : noop;
+    }
+    Object.defineProperty(target, key, sharedPropertyDefinition);
+  }
+
+  function createComputedGetter(key) {
+    return function computedGetter() {
+      var watcher = this._computedWatchers && this._computedWatchers[key];
+      if (watcher) {
+        if (watcher.dirty) {
+          watcher.evaluate();
+        }
+        if (Dep.target) {
+          watcher.depend();
+        }
+        return watcher.value;
+      }
+    };
+  }
+
+  function initWatch(vm, watch) {
+    for (var key in watch) {
+      var handler = watch[key];
+      if (Array.isArray(handler)) {
+        for (var i = 0; i < handler.length; i++) {
+          createWatcher(vm, key, handler[i]);
+        }
+      } else {
+        createWatcher(vm, key, handler);
+      }
+    }
+  }
+
+  function createWatcher(vm, keyOrFn, handler, options$$1) {
+    if (isPlainObject(handler)) {
+      options$$1 = handler;
+      handler = handler.handler;
+    }
+    if (typeof handler === 'string') {
+      handler = vm[handler];
+    }
+    return vm.$watch(keyOrFn, handler, options$$1);
+  }
+
   var sharedPropertyDefinition = {
     enumerable: true,
     configurable: true,
@@ -2000,14 +2072,43 @@
       for (var key$1 in state) {
         defineReactive$$1(this$1, key$1, state[key$1]);
       }
+      if (this.computed) {
+        initComputed(this, this.computed);
+      }
+      if (this.watch && this.watch !== nativeWatch) {
+        initWatch(this, this.watch);
+      }
+      var init = false;
       this._watcher = new Watcher(this, function () {
-        this$1.forceUpdate();
+        //第一次只执行一次render进行依赖搜集
+        if (!init) {
+          this$1.render();
+          init = true;
+        } else {
+          this$1.forceUpdate();
+        }
       });
     }
 
     if (C) Component$$1.__proto__ = C;
     Component$$1.prototype = Object.create(C && C.prototype);
     Component$$1.prototype.constructor = Component$$1;
+
+    Component$$1.prototype.$watch = function $watch(expOrFn, cb, options$$1) {
+      var vm = this;
+      if (isPlainObject(cb)) {
+        return createWatcher(vm, expOrFn, cb, options$$1);
+      }
+      options$$1 = options$$1 || {};
+      options$$1.user = true;
+      var watcher = new Watcher(vm, expOrFn, cb, options$$1);
+      if (options$$1.immediate) {
+        cb.call(vm, watcher.value);
+      }
+      return function unwatchFn() {
+        watcher.teardown();
+      };
+    };
 
     Component$$1.prototype.state = function state() {};
 
