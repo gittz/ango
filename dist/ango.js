@@ -2063,11 +2063,36 @@
 
   var Component$$1 = function (C) {
     function Component$$1(props, context) {
+      C.call(this, props, context);
+    }
+
+    if (C) Component$$1.__proto__ = C;
+    Component$$1.prototype = Object.create(C && C.prototype);
+    Component$$1.prototype.constructor = Component$$1;
+
+    Component$$1.prototype.$watch = function $watch(expOrFn, cb, options$$1) {
+      var vm = this;
+      if (isPlainObject(cb)) {
+        return createWatcher(vm, expOrFn, cb, options$$1);
+      }
+      options$$1 = options$$1 || {};
+      options$$1.user = true;
+      var watcher = new Watcher(vm, expOrFn, cb, options$$1);
+      if (options$$1.immediate) {
+        cb.call(vm, watcher.value);
+      }
+      return function unwatchFn() {
+        watcher.teardown();
+      };
+    };
+
+    Component$$1.prototype.state = function state() {};
+
+    Component$$1.prototype.componentWillMount = function componentWillMount() {
       var this$1 = this;
 
-      C.call(this, props, context);
       this._watchers = [];
-      props = extend({}, this.props);
+      var props = extend({}, this.props);
       for (var key in this$1.props) {
         if (skip[key]) {
           this$1[key] = this$1.props[key];
@@ -2096,29 +2121,7 @@
           this$1.forceUpdate();
         }
       });
-    }
-
-    if (C) Component$$1.__proto__ = C;
-    Component$$1.prototype = Object.create(C && C.prototype);
-    Component$$1.prototype.constructor = Component$$1;
-
-    Component$$1.prototype.$watch = function $watch(expOrFn, cb, options$$1) {
-      var vm = this;
-      if (isPlainObject(cb)) {
-        return createWatcher(vm, expOrFn, cb, options$$1);
-      }
-      options$$1 = options$$1 || {};
-      options$$1.user = true;
-      var watcher = new Watcher(vm, expOrFn, cb, options$$1);
-      if (options$$1.immediate) {
-        cb.call(vm, watcher.value);
-      }
-      return function unwatchFn() {
-        watcher.teardown();
-      };
     };
-
-    Component$$1.prototype.state = function state() {};
 
     Component$$1.prototype.shouldComponentUpdate = function shouldComponentUpdate() {
       return false;

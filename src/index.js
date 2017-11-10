@@ -137,8 +137,30 @@ const skip = {
 export class Component extends C {
     constructor(props, context) {
         super(props, context)
+    }
+
+    $watch(expOrFn, cb, options) {
+        const vm = this
+        if (isPlainObject(cb)) {
+            return createWatcher(vm, expOrFn, cb, options)
+        }
+        options = options || {}
+        options.user = true
+        const watcher = new Watcher(vm, expOrFn, cb, options)
+        if (options.immediate) {
+            cb.call(vm, watcher.value)
+        }
+        return function unwatchFn() {
+            watcher.teardown()
+        }
+    }
+
+    state() {
+    }
+
+    componentWillMount() {
         this._watchers = []
-        props = extend({}, this.props)
+        const props = extend({}, this.props)
         for (const key in this.props) {
             if (skip[key]) {
                 this[key] = this.props[key]
@@ -165,25 +187,6 @@ export class Component extends C {
                 this.forceUpdate()
             }
         })
-    }
-
-    $watch(expOrFn, cb, options) {
-        const vm = this
-        if (isPlainObject(cb)) {
-            return createWatcher(vm, expOrFn, cb, options)
-        }
-        options = options || {}
-        options.user = true
-        const watcher = new Watcher(vm, expOrFn, cb, options)
-        if (options.immediate) {
-            cb.call(vm, watcher.value)
-        }
-        return function unwatchFn() {
-            watcher.teardown()
-        }
-    }
-
-    state() {
     }
 
     shouldComponentUpdate() {

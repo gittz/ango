@@ -7,7 +7,7 @@
   },
   "version": "1.0.0",
   "description": "an elegant efficient express mvvm framework",
-  "main": "dist/ango.cjs.js",
+  "main": "dist/ango.js",
   "keywords": [
     "javascript",
     "mvvm",
