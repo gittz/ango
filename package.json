@@ -6,7 +6,7 @@
     "url": "https://github.com/gittz/ango.git"
   },
   "version": "1.0.0",
-  "description": "an elegant efficient express mvvm framework",
+  "description": "an elegant efficient mvvm framework",
   "main": "dist/ango.js",
   "keywords": [
     "javascript",
